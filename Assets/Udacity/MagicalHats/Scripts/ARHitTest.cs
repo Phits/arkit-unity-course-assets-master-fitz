@@ -38,6 +38,9 @@ public class ARHitTest : MonoBehaviour {
 		if (hitResults.Count > 0) {
 			foreach (var hitResult in hitResults) {
 				//TODO: get the position and rotations to spawn the hat
+				Vector3 pos = UnityARMatrixOps.GetPosition (hitResult.worldTransform);
+				Quaternion rotation = UnityARMatrixOps.GetRotation (hitResult.worldTransform);
+				spawnedObjects.Add( Instantiate (hitPrefab, pos, rotation) ); // in order to use for shuffling
 				return true;
 			}
 		}
@@ -53,8 +56,13 @@ public class ARHitTest : MonoBehaviour {
 
 	public void RemoveObject(Vector2 point) {
 		//TODO: Raycast from the screen point into the virtual world and see if we hit anything
-		//if we do, then check to see if it is part of the spawnedObjects array
-		//if so, then delete the object we raycast hit
+		RaycastHit hit;
+		if (Physics.Raycast (ARCamera.ScreenPointToRay (point), out hit)) {
+			GameObject item = hit.collider.transform.parent.gameObject; //parent is what is stored in our area;
+			if (spawnedObjects.Remove (item) ) { //make sure to remove the hat from the array for consistancy
+				Destroy (item);
+			}
+		}
 	}
 		
 	/// <summary>
